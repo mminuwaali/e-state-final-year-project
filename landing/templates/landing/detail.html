@@ -1,0 +1,47 @@
+{% extends 'landing.html' %}
+
+{% block content %}
+  <section class="mt-20 w-full flex flex-col items-center justify-center gap-2">
+    <a href="{% url 'landing:category-detail-view' apartment.category.id %}" class="text-xs text-gray-400" style="font-variant: small-caps;">{{ apartment.category.name }}</a>
+    <h2 class="text-3xl font-serif text-slate-600 font-semibold text-center">{{ apartment.name }}</h2>
+  </section>
+
+  <section class="w-full grid gap-6 px-[10%] grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+    <div class="shadow-md flex flex-col min-h-60 gap-4">
+      <img id="image" src="{{ apartment.image_set.first.image.url }}" alt="" class="w-full aspect-2 object-contain bg-gray-100" />
+      <div class="flex-none w-full h-20 bg-slate-200 p-2 lfex items-center justify-start gap-2 overflow-auto">
+        {% for image in apartment.image_set.all %}
+          <img src="{{ image.image.url }}" alt="" class="images cursor-pointer h-full object contain rounded-md" />
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4 min-h-60 p-4">
+      <div class="w-full flex items-center justify-start gap-2 text-slate-600">
+        <span class="text-lg" style="font-variant: small-caps;">price: <i class="">N{{ apartment.price }}, per month</i></span>
+      </div>
+
+      <div class="w-full flex flex-col gap-1">
+        <p class="text-sm text-justify">{{ apartment.description }}</p>
+      </div>
+
+      <form method="post" class="w-full flex items-center mt-auto justify-start gap-2">
+        {% csrf_token %}
+        <div class="flex items-center justify-start gap-4">
+          <input type="number" name="month" min="1" value="1" class="w-20 h-8" onchange="document.querySelector('#total').textContent = 'N '+event.target.value*{{ apartment.price }}" />
+          <output id="total">N 0.00</output>
+        </div>
+        <button style="font-variant: small-caps;" class="ml-auto text-sm bg-slate-600 text-white rounded px-6 py-1">purchase</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}
+
+{% block script %}
+  <script>
+    let image = document.querySelector('#image')
+    document.querySelectorAll('.images').forEach((img) => {
+      img.onclick = () => (image.src = img.src)
+    })
+  </script>
+{% endblock %}
