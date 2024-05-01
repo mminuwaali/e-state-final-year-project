@@ -28,6 +28,7 @@
       <form method="post" class="w-full flex items-center mt-auto justify-start gap-2">
         {% csrf_token %}
         <div class="flex items-center justify-start gap-4">
+          <span>number of months</span>
           <input type="number" name="month" min="1" value="1" class="w-20 h-8" onchange="document.querySelector('#total').textContent = 'N '+event.target.value*{{ apartment.price }}" />
           <output id="total">N 0.00</output>
         </div>
