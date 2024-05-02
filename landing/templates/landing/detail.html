@@ -25,11 +25,11 @@
         <p class="text-sm text-justify">{{ apartment.description }}</p>
       </div>
 
-      <form method="post" class="w-full flex items-center mt-auto justify-start gap-2">
+      <form id="request-form" method="post" class="w-full flex items-center mt-auto justify-start gap-2">
         {% csrf_token %}
         <div class="flex items-center justify-start gap-4">
           <span>number of months</span>
-          <input type="number" name="month" min="1" value="1" class="w-20 h-8" onchange="document.querySelector('#total').textContent = 'N '+event.target.value*{{ apartment.price }}" />
+          <input id="count" type="number" name="month" min="1" value="0" class="w-20 h-8" onchange="document.querySelector('#total').textContent = 'N '+event.target.value*{{ apartment.price }}" />
           <output id="total">N 0.00</output>
         </div>
         <button style="font-variant: small-caps;" class="ml-auto text-sm bg-slate-600 text-white rounded px-6 py-1">purchase</button>
@@ -39,10 +39,41 @@
 {% endblock %}
 
 {% block script %}
+  <script src="https://js.paystack.co/v1/inline.js"></script>
   <script>
     let image = document.querySelector('#image')
     document.querySelectorAll('.images').forEach((img) => {
       img.onclick = () => (image.src = img.src)
+    })
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector('#request-form')
+    
+      form.addEventListener('submit', handleFormSubmit)
+    
+      function handleFormSubmit(ev) {
+        ev.preventDefault()
+    
+        let tag = document.querySelector('#count')
+        if (tag.value == 0) return
+    
+        let handler = PaystackPop.setup({
+          currency: 'NGN',
+          email: '{{ user.email }}',
+          ref: '' + Math.floor(Math.random() * 1000000000 + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+          key: 'pk_test_3288357263a2a6e7b787f4fa87e4642e31819a1b', // Replace with your public key
+          amount: Number('{{apartment.price}}') * Number(tag.value) * 100,
+          onClose: function () {
+            alert('You have canceled the transaction')
+          },
+          callback: function () {
+            form.submit()
+          }
+        })
+    
+        handler.openIframe()
+      }
     })
   </script>
 {% endblock %}
